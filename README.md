@@ -28,5 +28,5 @@ InfluxDB : 1.7
 DashBoard Auto Create에서 
 sqlite3worker.py  create_board 함수 body['title'] 부분만 주석 참고 하여 수정시 정상 동작
 
-사용법 메뉴얼 
+사용법 메뉴얼 참
 </pre>
