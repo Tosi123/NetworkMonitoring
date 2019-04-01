@@ -36,8 +36,11 @@ class Sqlite3Worker:
             ip=self.server_ip)
         (exitstatus, outtext) = commands.getstatusoutput(cmd)
         if exitstatus == 0:
-            data = json.loads(outtext)
-            return data['results'][0]['series'][0]['values']
+            try:
+                data = json.loads(outtext)
+                return data['results'][0]['series'][0]['values']
+            except:
+                return -1
         else:
             print(exitstatus)
             print('\n_get_iface Function Check')
@@ -65,34 +68,36 @@ class Sqlite3Worker:
     def create_board(self, title, folder_id):
         uid = self._get_random()
         iface_list = self._get_iface()
-        date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-        skel = json.loads(BOARD_SKEL)
-        skel['title'] = title.decode('utf-8')
-        skel['uid'] = uid
-        num = 0
-        x = 0
-        y = 0
-
-        for list in iface_list:
-            body = json.loads(BOARD_BODY)
-            body['id'] = num
-            body['title'] = self.server_ip + '-' + list[0]      # InfluxDB 1.7 버전은 response 데이터 가 달라 list[1]이다
-            body['targets'][0]['tags'][0]['value'] = self.server_ip
-            body['targets'][0]['tags'][1]['value'] = list[0]
-            num += 1
-            if x == 0:
-                body['gridPos']['x'] = 0
-                body['gridPos']['y'] = y
-                x += 1
-            elif x == 1:
-                body['gridPos']['x'] = body['gridPos']['w']
-                body['gridPos']['y'] = y
-                x -= 1
-                y += body['gridPos']['h']
-            skel['panels'].append(body)
-        json_data = json.dumps(skel, ensure_ascii=False)
-        value = [1, title, title, json_data, 1, date, date, 1, 1, 0, '', folder_id, 0, 0, uid]
-        self._db_insert(value)
+        if iface_list == -1:
+            print('InterFace Snmp Data Not Found IP={ip}'.format(ip=self.server_ip))
+        else:
+            date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+            skel = json.loads(BOARD_SKEL)
+            skel['title'] = title.decode('utf-8')
+            skel['uid'] = uid
+            num = 0
+            x = 0
+            y = 0
+            for list in iface_list:
+                body = json.loads(BOARD_BODY)
+                body['id'] = num
+                body['title'] = self.server_ip + '-' + list[0]  # InfluxDB 1.7 버전은 response 데이터 가 달라 list[1]이다
+                body['targets'][0]['tags'][0]['value'] = self.server_ip
+                body['targets'][0]['tags'][1]['value'] = list[0]
+                num += 1
+                if x == 0:
+                    body['gridPos']['x'] = 0
+                    body['gridPos']['y'] = y
+                    x += 1
+                elif x == 1:
+                    body['gridPos']['x'] = body['gridPos']['w']
+                    body['gridPos']['y'] = y
+                    x -= 1
+                    y += body['gridPos']['h']
+                skel['panels'].append(body)
+            json_data = json.dumps(skel, ensure_ascii=False)
+            value = [1, title, title, json_data, 1, date, date, 1, 1, 0, '', folder_id, 0, 0, uid]
+            self._db_insert(value)
 
     def select_dir(self, title):
         sql = "SELECT id FROM dashboard WHERE title = ? AND is_folder = 1"
