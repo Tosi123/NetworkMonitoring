@@ -39,8 +39,8 @@ class Sqlite3Worker:
             try:
                 data = json.loads(outtext)
                 return data['results'][0]['series'][0]['values']
-            except:
-                return -1
+            except Exception as e:
+                return e
         else:
             print(exitstatus)
             print('\n_get_iface Function Check')
@@ -57,7 +57,6 @@ class Sqlite3Worker:
     def create_dir(self, title):
         uid = self._get_random()
         date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-
         load = json.loads(FOLDER_JSON)
         load['title'] = title.decode('utf-8')
         load['uid'] = uid
@@ -68,9 +67,7 @@ class Sqlite3Worker:
     def create_board(self, title, folder_id):
         uid = self._get_random()
         iface_list = self._get_iface()
-        if iface_list == -1:
-            print('InterFace Snmp Data Not Found IP={ip}'.format(ip=self.server_ip))
-        else:
+        if str(type(iface_list)) == "<type 'list'>":
             date = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             skel = json.loads(BOARD_SKEL)
             skel['title'] = title.decode('utf-8')
@@ -98,6 +95,8 @@ class Sqlite3Worker:
             json_data = json.dumps(skel, ensure_ascii=False)
             value = [1, title, title, json_data, 1, date, date, 1, 1, 0, '', folder_id, 0, 0, uid]
             self._db_insert(value)
+        else:
+            print('Get InterFace Error ({ip} / {err})'.format(ip=self.server_ip, err=iface_list))
 
     def select_dir(self, title):
         sql = "SELECT id FROM dashboard WHERE title = ? AND is_folder = 1"
