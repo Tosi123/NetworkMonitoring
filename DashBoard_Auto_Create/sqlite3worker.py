@@ -80,7 +80,7 @@ class Sqlite3Worker:
                 body['id'] = num
                 body['title'] = self.server_ip + '-' + list[0]  # InfluxDB 1.7 버전은 response 데이터 가 달라 list[1]이다
                 body['targets'][0]['tags'][0]['value'] = self.server_ip
-                body['targets'][0]['tags'][1]['value'] = list[0]
+                body['targets'][0]['tags'][1]['value'] = list[0]  # InfluxDB 1.7 버전은 response 데이터 가 달라 list[1]이다
                 num += 1
                 if x == 0:
                     body['gridPos']['x'] = 0
