@@ -17,6 +17,8 @@ def _exception_check(msg):
 # 네트워크 모든 인터페이스 트래픽 가져오기
 def net_traffic_get(snmp):
     snmp_data = []
+    index_dict = {}
+
     try:
         for (error_indication,
              error_status,
@@ -41,23 +43,28 @@ def net_traffic_get(snmp):
                 logging.error("\tSnmp Data Error (IP:{ip} / {err})".format(err=error_status, ip=snmp['ip']))
                 break
             else:
-                device_dict = {}
                 for var_bind in var_binds:
                     var_tmp = [x.prettyPrint() for x in var_bind]
                     var_tmp2 = var_tmp[0].replace('IF-MIB::', '').split('.')
-                    if var_tmp2[0] == 'ifDescr' and snmp['name_conver'].lower() == 'y':
-                        item_dict = {var_tmp2[0]: var_tmp2[1]}
+                    if var_tmp2[1] in index_dict:
+                        key = index_dict.get(var_tmp2[1])
+                        if var_tmp2[0] == 'ifDescr' and snmp['name_conver'].lower() == 'y':
+                            snmp_data[key][var_tmp2[0]] = var_tmp2[1]
+                        else:
+                            snmp_data[key][var_tmp2[0]] = var_tmp[1]
                     else:
-                        item_dict = {var_tmp2[0]: var_tmp[1]}
-                    device_dict = {**device_dict, **item_dict}
-                time_dict = {'Time': time.strftime('%Y%m%d%H%M%S')}  # 인터페이스 마다 트래픽 계산용 시간 넣기
-                device_dict = {**device_dict, **time_dict}
-                snmp_data.append(device_dict)
+                        if var_tmp2[0] == 'ifDescr' and snmp['name_conver'].lower() == 'y':
+                            item_dict = {var_tmp2[0]: var_tmp2[1]}
+                        else:
+                            item_dict = {var_tmp2[0]: var_tmp[1]}
+                        time_dict = {'Time': time.strftime('%Y%m%d%H%M%S')}  # 인터페이스 마다 트래픽 계산용 시간 넣기
+                        item_dict = {**item_dict, **time_dict}
+                        snmp_data.append(item_dict)
+                        index_dict[var_tmp2[1]] = snmp_data.index(item_dict)
                 logging.info("\tSnmp Data Get Success (IP:{ip})".format(ip=snmp['ip']))
         logging.debug("\tSnmp Data = ({snmp})".format(snmp=snmp_data))
     except Exception as e:
         logging.error("\tSnmp Data Get Fail (IP:{ip} / {detail})".format(ip=snmp['ip'], detail=e))
-        pass
     return snmp_data
 
 
@@ -107,5 +114,4 @@ def performance_get(snmp):
         logging.debug("\tSnmp Data = ({snmp})".format(snmp=snmp_data))
     except Exception as e:
         logging.error("\tSnmp Data Get Fail (IP:{ip} / {detail})".format(ip=snmp['ip'], detail=e))
-        pass
     return snmp_data
