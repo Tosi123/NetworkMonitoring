@@ -37,10 +37,10 @@ def net_traffic_get(snmp):
                                    lexicographicMode=False):
 
             if error_indication:
-                logging.error("\tSnmp Data Error (IP:{ip} / {err})".format(err=error_indication, ip=snmp['ip']))
+                logging.error("\tTraffic Snmp Data Error (IP:{ip} / {err})".format(err=error_indication, ip=snmp['ip']))
                 break
             elif error_status:
-                logging.error("\tSnmp Data Error (IP:{ip} / {err})".format(err=error_status, ip=snmp['ip']))
+                logging.error("\tTraffic Snmp Data Error (IP:{ip} / {err})".format(err=error_status, ip=snmp['ip']))
                 break
             else:
                 for var_bind in var_binds:
@@ -61,10 +61,10 @@ def net_traffic_get(snmp):
                         item_dict = {**item_dict, **time_dict}
                         snmp_data.append(item_dict)
                         index_dict[var_tmp2[1]] = snmp_data.index(item_dict)
-                logging.info("\tSnmp Data Get Success (IP:{ip})".format(ip=snmp['ip']))
-        logging.debug("\tSnmp Data = ({snmp})".format(snmp=snmp_data))
+                logging.info("\tTraffic Snmp Data Get Success (IP:{ip})".format(ip=snmp['ip']))
+        logging.debug("\tTraffic Snmp Data (IP:{ip}) = ({snmp})".format(snmp=snmp_data, ip=snmp['ip']))
     except Exception as e:
-        logging.error("\tSnmp Data Get Fail (IP:{ip} / {detail})".format(ip=snmp['ip'], detail=e))
+        logging.error("\tTraffic Snmp Data Get Fail (IP:{ip} / {detail})".format(ip=snmp['ip'], detail=e))
     return snmp_data
 
 
@@ -89,10 +89,11 @@ def performance_get(snmp):
                                    lexicographicMode=False):
 
             if error_indication:
-                logging.error("\tSnmp Data Error (IP:{ip} / {err})".format(err=error_indication, ip=snmp['ip']))
+                logging.error(
+                    "\tPerformance Snmp Data Error (IP:{ip} / {err})".format(err=error_indication, ip=snmp['ip']))
                 break
             elif error_status:
-                logging.error("\tSnmp Data Error (IP:{ip} / {err})".format(err=error_status, ip=snmp['ip']))
+                logging.error("\tPerformance Snmp Data Error (IP:{ip} / {err})".format(err=error_status, ip=snmp['ip']))
                 break
             else:
                 device_dict = {}
@@ -110,8 +111,8 @@ def performance_get(snmp):
                         item_dict = {var_tmp[0]: var_tmp[1]}
                     device_dict = {**device_dict, **item_dict}
                 snmp_data.append(device_dict)
-                logging.info("\tSnmp Data Get Success (IP:{ip})".format(ip=snmp['ip']))
-        logging.debug("\tSnmp Data = ({snmp})".format(snmp=snmp_data))
+                logging.info("\tPerformance Snmp Data Get Success (IP:{ip})".format(ip=snmp['ip']))
+        logging.debug("\tPerformance Snmp Data (IP:{ip}) = ({snmp})".format(snmp=snmp_data, ip=snmp['ip']))
     except Exception as e:
-        logging.error("\tSnmp Data Get Fail (IP:{ip} / {detail})".format(ip=snmp['ip'], detail=e))
+        logging.error("\tPerformance Snmp Data Get Fail (IP:{ip} / {detail})".format(ip=snmp['ip'], detail=e))
     return snmp_data
