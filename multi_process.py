@@ -56,7 +56,6 @@ if __name__ == '__main__':
     session = conn_db.db_connect(SERVER_INFO)
 
     thread_num = 0
-    switch_val = SERVER_INFO['agt_type'].replace(' ', '')
     # Agent Type 확인 후 시작
     for snmp_list in snmplist.SNMP_SERVER_LIST:
         if 'ALL' in SERVER_INFO['agt_type'].replace(' ', ''):
